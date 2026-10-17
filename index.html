@@ -153,8 +153,22 @@ const set = (k,v) => { const s = JSON.stringify(v); if (storageOK) { try { local
 const del = k => { if (storageOK) localStorage.removeItem(k); else delete mem[k]; };
 
 /* Bible links */
-const VERSIONS = ['ESV','NIV','NLT','NKJV','KJV','CSB','NASB','MSG'];
-const bibleUrl = (ref, v) => `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=${v}`;
+/* YouVersion (Bible.com) links */
+const YV = { ESV:[59,'ESV'], NIV:[111,'NIV'], NLT:[116,'NLT'], NKJV:[114,'NKJV'], KJV:[1,'KJV'], CSB:[1713,'CSB'], NASB:[2692,'NASB2020'], AMP:[1588,'AMP'], MSG:[97,'MSG'] };
+const VERSIONS = Object.keys(YV);
+const USFM = {genesis:'GEN',gen:'GEN',exodus:'EXO',ex:'EXO',exod:'EXO',leviticus:'LEV',lev:'LEV',numbers:'NUM',num:'NUM',deuteronomy:'DEU',deut:'DEU',joshua:'JOS',josh:'JOS',judges:'JDG',judg:'JDG',ruth:'RUT',
+ '1samuel':'1SA','2samuel':'2SA','1kings':'1KI','2kings':'2KI','1chronicles':'1CH','2chronicles':'2CH',ezra:'EZR',nehemiah:'NEH',esther:'EST',job:'JOB',psalm:'PSA',psalms:'PSA',ps:'PSA',proverbs:'PRO',prov:'PRO',
+ ecclesiastes:'ECC',eccl:'ECC',songofsolomon:'SNG',songofsongs:'SNG',isaiah:'ISA',isa:'ISA',jeremiah:'JER',jer:'JER',lamentations:'LAM',lam:'LAM',ezekiel:'EZK',ezek:'EZK',daniel:'DAN',dan:'DAN',hosea:'HOS',joel:'JOL',
+ amos:'AMO',obadiah:'OBA',jonah:'JON',micah:'MIC',nahum:'NAM',habakkuk:'HAB',zephaniah:'ZEP',haggai:'HAG',zechariah:'ZEC',malachi:'MAL',matthew:'MAT',matt:'MAT',mark:'MRK',mk:'MRK',luke:'LUK',lk:'LUK',john:'JHN',jn:'JHN',
+ acts:'ACT',romans:'ROM',rom:'ROM','1corinthians':'1CO','2corinthians':'2CO',galatians:'GAL',gal:'GAL',ephesians:'EPH',eph:'EPH',philippians:'PHP',phil:'PHP',colossians:'COL',col:'COL','1thessalonians':'1TH','2thessalonians':'2TH',
+ '1timothy':'1TI','2timothy':'2TI',titus:'TIT',philemon:'PHM',hebrews:'HEB',heb:'HEB',james:'JAS',jas:'JAS','1peter':'1PE','2peter':'2PE','1john':'1JN','2john':'2JN','3john':'3JN',jude:'JUD',revelation:'REV',rev:'REV'};
+const bibleUrl = (ref, v) => {
+  const [id, abbr] = YV[v] || YV.ESV;
+  const m = String(ref).trim().replace(/[–—]/g,'-').match(/^([123]?\s*[A-Za-z][A-Za-z .]*?)\.?\s+(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/);
+  const book = m && USFM[m[1].toLowerCase().replace(/[\s.]/g,'')];
+  if (!book) return `https://www.bible.com/search/bible?query=${encodeURIComponent(ref)}&version_id=${id}`;
+  return `https://www.bible.com/bible/${id}/${book}.${m[2]}${m[3] ? '.'+m[3]+(m[4] ? '-'+m[4] : '') : ''}.${abbr}`;
+};
 const BOOKS = 'Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|[12] ?Samuel|[12] ?Kings|[12] ?Chronicles|Ezra|Nehemiah|Esther|Job|Psalms?|Proverbs|Ecclesiastes|Song of Solomon|Song of Songs|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|[12] ?Corinthians|Galatians|Ephesians|Philippians|Colossians|[12] ?Thessalonians|[12] ?Timothy|Titus|Philemon|Hebrews|James|[12] ?Peter|[123] ?John|Jude|Revelation|Gen|Ex|Lev|Num|Deut|Josh|Judg|Ps|Prov|Eccl|Isa|Jer|Lam|Ezek|Dan|Matt|Mk|Lk|Jn|Rom|Gal|Eph|Phil|Col|Heb|Jas|Rev';
 const REF_RE = new RegExp(`\\b(${BOOKS})\\.? (\\d{1,3})(?::(\\d{1,3})(?:[-–](\\d{1,3}))?)?\\b`, 'gi');
 const findRefs = text => { const out = new Set(); for (const m of String(text||'').matchAll(REF_RE)) out.add(m[0].replace('–','-')); return [...out]; };
@@ -206,7 +220,7 @@ function renderEntry(){
   if (!e){ prefs.view='home'; return renderHome(); }
   const v = prefs.version;
   const refsHtml = () => { const refs = [...new Set([...String(e.scripture||'').split(/[;,\n]/).map(s=>s.trim()).filter(Boolean), ...findRefs([e.reflection,e.god,e.jesus,e.obey,e.prayer,e.takeaway].join(' '))])];
-    return refs.map(r => `<a class="chip" target="_blank" rel="noopener" href="${bibleUrl(r,v)}">📜 ${esc(r)}</a>`).join(''); };
+    return refs.map(r => `<a class="chip" target="_blank" rel="noopener" href="${bibleUrl(r,prefs.version)}">📜 ${esc(r)}</a>`).join(''); };
   $('#main').innerHTML = privacyNote() + `
     <input class="title-input" id="f_title" placeholder="Entry title" value="${esc(e.title)}" aria-label="Entry title">
     <div class="meta-row"><input type="date" id="f_date" value="${esc(e.date)}" aria-label="Date">
