@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Study Journal — Weekly Bible Study</title>
+<meta name="description" content="Weekly Bible study with passage links and a private journal saved only on your device.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f1e7; --surface:#fffdf8; --surface-2:#efe7d6; --ink:#2a241c; --muted:#6f6555;
+  --line:#ddd2bd; --accent:#7a3b2e; --accent-ink:#fff; --accent-soft:#f2e2da; --ok:#3d6b45;
+  --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,-apple-system,sans-serif;
+  --r:12px; --shadow:0 1px 2px rgba(60,40,20,.06),0 6px 20px rgba(60,40,20,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#1b1814; --surface:#24201b; --surface-2:#2e2922; --ink:#eee6d8; --muted:#a89c88;
+  --line:#3a342b; --accent:#d9937f; --accent-ink:#1b1814; --accent-soft:#3a2a24; --ok:#8cc596;
+  --shadow:none;}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+.app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+aside{border-right:1px solid var(--line);padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto;background:var(--surface-2)}
+.brand{font-family:var(--serif);font-size:1.5rem;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
+.brand-sub{color:var(--muted);font-size:.85rem;margin:0 0 22px}
+.nav-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 6px 8px}
+.week-btn{display:block;width:100%;text-align:left;background:none;border:0;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:2px}
+.week-btn:hover{background:var(--surface)}
+.week-btn[aria-current="true"]{background:var(--surface);box-shadow:var(--shadow)}
+.week-btn .wk{font-size:.75rem;color:var(--muted)}
+.week-btn .wt{display:block;font-weight:500;font-size:.95rem}
+.week-btn .dot{float:right;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-top:6px}
+.side-actions{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:9px 14px;border-radius:10px;cursor:pointer;font-size:.9rem;font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink)}
+.btn.small{padding:6px 10px;font-size:.82rem}
+main{padding:40px clamp(18px,5vw,64px) 80px;max-width:860px;width:100%}
+.topbar{display:none}
+.privacy{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);border-radius:var(--r);padding:12px 14px;font-size:.88rem;margin-bottom:28px}
+.privacy svg{flex:none;margin-top:2px}
+.eyebrow{color:var(--accent);font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,4vw,2.6rem);line-height:1.15;margin:6px 0 10px;letter-spacing:-.015em}
+.intro{color:var(--muted);font-family:var(--serif);font-size:1.12rem;margin:0 0 20px}
+.passages{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);text-decoration:none;color:var(--ink);font-size:.9rem;font-weight:500}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.version{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.85rem;margin:10px 0 30px}
+.version select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow)}
+.q-num{font-size:.78rem;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.q-text{font-family:var(--serif);font-size:1.18rem;line-height:1.4;margin:4px 0 6px}
+.q-refs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.q-refs a{font-size:.82rem;text-decoration:none;border-bottom:1px solid transparent}
+.q-refs a:hover{border-color:currentColor}
+label.field{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+textarea{width:100%;min-height:96px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--bg);line-height:1.55;font-size:1rem}
+textarea.short{min-height:56px}
+textarea:focus,input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.saved{font-size:.78rem;color:var(--ok);height:1em;margin-top:6px}
+.section-h{font-family:var(--serif);font-size:1.3rem;margin:34px 0 12px;font-weight:600}
+.empty{color:var(--muted);text-align:center;padding:60px 20px}
+.journal-entry{border-top:1px solid var(--line);padding:14px 0}
+.journal-entry:first-child{border-top:0}
+.journal-entry .q-text{font-size:1.02rem}
+.journal-entry p{margin:4px 0;white-space:pre-wrap}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}
+input[type=text]{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg)}
+.edit-q{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px}
+.edit-q .refs{grid-column:1}
+.hint{color:var(--muted);font-size:.82rem;margin:4px 0 0}
+.warn{background:#f6e3b8;color:#4a3a10;border-radius:var(--r);padding:12px 14px;font-size:.88rem;margin-bottom:20px}
+dialog{border:0;border-radius:16px;padding:0;max-width:440px;width:calc(100% - 32px);background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(20,15,10,.45)}
+.dlg{padding:22px}
+.dlg h2{font-family:var(--serif);margin:0 0 8px;font-size:1.35rem}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.lock-screen{max-width:380px;margin:12vh auto;text-align:center}
+.lock-screen input{text-align:center;font-size:1.2rem;letter-spacing:.3em;margin:14px 0}
+.err{color:#b3261e;font-size:.85rem;min-height:1.2em}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  aside{position:fixed;inset:0 auto 0 0;width:84%;max-width:320px;z-index:20;transform:translateX(-100%);transition:transform .25s ease;box-shadow:0 0 40px rgba(0,0,0,.2)}
+  aside.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:15;display:none}
+  .scrim.show{display:block}
+  .topbar{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
+  .topbar .brand{font-size:1.15rem;margin:0}
+  main{padding-top:22px}
+}
+@media print{aside,.topbar,.toolbar,.privacy,.version,.btn{display:none!important}.app{display:block}textarea{border:0;padding:0;min-height:0}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="btn small" id="menuBtn" aria-label="Open weeks menu">☰ Weeks</button>
+  <p class="brand">Study Journal</p>
+  <span style="width:70px"></span>
+</div>
+<div class="scrim" id="scrim"></div>
+<div class="app">
+  <aside id="side">
+    <p class="brand">Study Journal</p>
+    <p class="brand-sub">Weekly Bible study</p>
+    <button class="btn ghost" data-view="journal" style="width:100%;text-align:left">📖 My journal</button>
+    <div class="nav-label">Weeks</div>
+    <nav id="weekList"></nav>
+    <div class="side-actions">
+      <button class="btn small" id="addWeek">+ Add a week</button>
+    </div>
+    <div class="nav-label">My data</div>
+    <div class="side-actions">
+      <button class="btn small" id="exportBtn">Back up my journal</button>
+      <button class="btn small" id="importBtn">Restore from backup</button>
+      <button class="btn small" id="lockBtn">Set passcode lock</button>
+      <input type="file" id="importFile" accept="application/json" hidden>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+
+<dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
+
+<script>
+(() => {
+"use strict";
+/* ---------- Storage (private, this device only) ----------
+   Study content and journal answers are kept in separate keys.
+   Nothing is ever sent to a server. */
+const K = { study:'sj.study.v1', journal:'sj.journal.v1', prefs:'sj.prefs.v1', lock:'sj.lock.v1' };
+let storageOK = true; const mem = {};
+try { localStorage.setItem('sj.test','1'); localStorage.removeItem('sj.test'); } catch(e){ storageOK = false; }
+const get = k => { try { const v = storageOK ? localStorage.getItem(k) : mem[k]; return v ? JSON.parse(v) : null; } catch(e){ return null; } };
+const set = (k,v) => { const s = JSON.stringify(v); if (storageOK) { try { localStorage.setItem(k,s); } catch(e){ mem[k]=s; } } else mem[k]=s; };
+
+/* ---------- Bible links ---------- */
+const VERSIONS = ['ESV','NIV','NLT','NKJV','KJV','CSB','NASB','MSG'];
+const bibleUrl = (ref, v) => `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=${v}`;
+
+/* ---------- Starter study (editable) ---------- */
+const STARTER = { weeks: [
+  { id:'w7', title:'Justice, Remembrance & Leadership', week:'Week 7',
+    intro:'Moses calls Israel to remember God’s deliverance, judge fairly, and follow leaders who stay under God’s word. Peter points to Jesus as the Prophet Moses promised.',
+    passages:['Deuteronomy 16','Deuteronomy 17','Deuteronomy 18','Deuteronomy 19','Acts 3'],
+    questions:[
+      { text:'Deuteronomy 16 builds regular feasts, giving, and rest into Israel’s year. Why do you think God made remembering His provision a repeated habit?', refs:['Deuteronomy 16:1-17'] },
+      { text:'What does God require of judges and witnesses? How does careful fact-finding protect people before a judgment is made?', refs:['Deuteronomy 16:18-20','Deuteronomy 17:2-7','Deuteronomy 19:15-21'] },
+      { text:'The king was to write out and read God’s law every day. What would it look like for leaders today to stay grounded in Scripture?', refs:['Deuteronomy 17:14-20'] },
+      { text:'Moses promised God would raise up a prophet like him. How does Peter apply this to Jesus, and how does that fit with Jesus as the Son of God?', refs:['Deuteronomy 18:15-22','Acts 3:17-26'] },
+      { text:'Cities of refuge protected people from unfair revenge. Where do you see God’s concern for justice and mercy together?', refs:['Deuteronomy 19:1-13'] }
+    ]},
+  { id:'w8', title:'Your Week 8 Study', week:'Week 8',
+    intro:'Tap “Edit week” to add this week’s passages and questions from your study guide.',
+    passages:['Deuteronomy 20'], questions:[{ text:'What stood out to you most in this week’s reading?', refs:[] }] }
+]};
+
+let study = get(K.study) || structuredClone(STARTER);
+let journal = get(K.journal) || {}; // { weekId: { q0:{answer,takeaway}, prayer:'' } }
+let prefs = Object.assign({ version:'ESV', current:study.weeks[0]?.id, view:'week' }, get(K.prefs) || {});
+const saveStudy = () => set(K.study, study);
+const saveJournal = () => set(K.journal, journal);
+const savePrefs = () => set(K.prefs, prefs);
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => 'w' + Math.random().toString(36).slice(2,9);
+const entry = id => (journal[id] ||= {});
+const hasAnswers = id => { const j = journal[id]; return j && Object.values(j).some(v => typeof v === 'string' ? v.trim() : (v.answer||'').trim() || (v.takeaway||'').trim()); };
+
+/* ---------- Sidebar ---------- */
+function renderNav(){
+  $('#weekList').innerHTML = study.weeks.map(w => `
+    <button class="week-btn" data-week="${w.id}" aria-current="${prefs.view==='week' && prefs.current===w.id}">
+      ${hasAnswers(w.id) ? '<span class="dot" title="Has journal entries"></span>' : ''}
+      <span class="wk">${esc(w.week)}</span><span class="wt">${esc(w.title)}</span>
+    </button>`).join('');
+  $('#lockBtn').textContent = get(K.lock) ? 'Change or remove passcode' : 'Set passcode lock';
+}
+
+const privacyNote = () => `
+  ${storageOK ? '' : '<div class="warn">This browser is blocking private storage, so answers will be lost when you close the page. Open the app in Safari or Chrome directly, or use “Back up my journal” before leaving.</div>'}
+  <div class="privacy"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+  <span><strong>Your answers are private.</strong> They are saved only in this browser on this device and are never sent anywhere. Other people using this app see only their own answers.</span></div>`;
+
+/* ---------- Week view ---------- */
+function renderWeek(){
+  const w = study.weeks.find(x => x.id === prefs.current) || study.weeks[0];
+  if (!w){ $('#main').innerHTML = privacyNote() + '<div class="empty">No weeks yet. Use “Add a week” to start.</div>'; return; }
+  prefs.current = w.id;
+  const j = entry(w.id); const v = prefs.version;
+  $('#main').innerHTML = privacyNote() + `
+    <div class="eyebrow">${esc(w.week)}</div>
+    <h1>${esc(w.title)}</h1>
+    ${w.intro ? `<p class="intro">${esc(w.intro)}</p>` : ''}
+    <div class="passages">${w.passages.map(p => `<a class="chip" target="_blank" rel="noopener" href="${bibleUrl(p,v)}">📜 ${esc(p)}</a>`).join('')}</div>
+    <div class="version">Bible version
+      <select id="ver">${VERSIONS.map(x => `<option ${x===v?'selected':''}>${x}</option>`).join('')}</select>
+      <button class="btn small ghost" id="editWeek">Edit week</button>
+      <button class="btn small ghost" id="printWeek">Print</button>
+    </div>
+    ${w.questions.map((q,i) => {
+      const a = j['q'+i] || {};
+      return `<section class="card">
+        <div class="q-num">QUESTION ${i+1}</div>
+        <div class="q-text">${esc(q.text)}</div>
+        ${q.refs?.length ? `<div class="q-refs">${q.refs.map(r => `<a target="_blank" rel="noopener" href="${bibleUrl(r,v)}">${esc(r)} ↗</a>`).join('')}</div>` : ''}
+        <label class="field" for="a${i}">My answer</label>
+        <textarea id="a${i}" data-q="${i}" data-f="answer" placeholder="Write your thoughts…">${esc(a.answer)}</textarea>
+        <label class="field" for="t${i}">One-sentence takeaway for my life today</label>
+        <textarea class="short" id="t${i}" data-q="${i}" data-f="takeaway" placeholder="How does this apply to my life and today’s world?">${esc(a.takeaway)}</textarea>
+        <div class="saved" id="s${i}"></div>
+      </section>`; }).join('')}
+    <h2 class="section-h">Prayer & notes</h2>
+    <section class="card">
+      <textarea id="prayer" data-f="prayer" placeholder="A prayer, a question for the group, or anything else…">${esc(j.prayer)}</textarea>
+      <div class="saved" id="sp"></div>
+    </section>`;
+  $('#ver').onchange = e => { prefs.version = e.target.value; savePrefs(); renderWeek(); };
+  $('#editWeek').onclick = () => editWeek(w);
+  $('#printWeek').onclick = () => window.print();
+  const timers = {};
+  $('#main').querySelectorAll('textarea').forEach(t => t.addEventListener('input', () => {
+    const e = entry(w.id);
+    if (t.dataset.f === 'prayer') e.prayer = t.value;
+    else { const k = 'q'+t.dataset.q; (e[k] ||= {})[t.dataset.f] = t.value; }
+    saveJournal();
+    const s = t.dataset.f === 'prayer' ? $('#sp') : $('#s'+t.dataset.q);
+    s.textContent = 'Saved privately ✓'; clearTimeout(timers[s.id]); timers[s.id] = setTimeout(() => s.textContent = '', 1600);
+    renderNav();
+  }));
+}
+
+/* ---------- Journal (all my answers) ---------- */
+function renderJournal(){
+  const weeks = study.weeks.filter(w => hasAnswers(w.id));
+  $('#main').innerHTML = privacyNote() + `
+    <div class="eyebrow">Private</div><h1>My journal</h1>
+    <p class="intro">Everything you’ve written, week by week.</p>
+    <div class="toolbar"><button class="btn small" onclick="print()">Print or save as PDF</button></div>
+    ${weeks.length ? weeks.map(w => { const j = journal[w.id];
+      return `<section class="card"><div class="eyebrow">${esc(w.week)}</div>
+        <h2 class="section-h" style="margin-top:4px">${esc(w.title)}</h2>
+        ${w.questions.map((q,i) => { const a = j['q'+i]; if (!a || !((a.answer||'').trim() || (a.takeaway||'').trim())) return '';
+          return `<div class="journal-entry"><div class="q-text">${i+1}. ${esc(q.text)}</div>
+            ${a.answer?.trim() ? `<p>${esc(a.answer)}</p>` : ''}
+            ${a.takeaway?.trim() ? `<p><strong>Takeaway:</strong> ${esc(a.takeaway)}</p>` : ''}</div>`; }).join('')}
+        ${j.prayer?.trim() ? `<div class="journal-entry"><div class="q-text">Prayer & notes</div><p>${esc(j.prayer)}</p></div>` : ''}
+      </section>`; }).join('') : '<div class="empty">Nothing written yet. Pick a week and start answering — it saves as you type.</div>'}`;
+}
+
+function render(){ renderNav(); prefs.view === 'journal' ? renderJournal() : renderWeek(); savePrefs(); closeMenu(); window.scrollTo(0,0); }
+
+/* ---------- Edit / add weeks ---------- */
+function editWeek(w){
+  const isNew = !w;
+  w = w ? structuredClone(w) : { id:uid(), week:`Week ${study.weeks.length+1}`, title:'', intro:'', passages:[], questions:[{text:'',refs:[]}] };
+  const qRow = (q,i) => `<div class="edit-q" data-i="${i}">
+      <textarea class="short" data-k="text" placeholder="Question ${i+1}">${esc(q.text)}</textarea>
+      <button class="btn small ghost" data-del="${i}" aria-label="Remove question">✕</button>
+      <input type="text" class="refs" data-k="refs" placeholder="Verse links, e.g. Acts 3:17-26; John 1:1" value="${esc((q.refs||[]).join('; '))}">
+    </div>`;
+  const body = $('#dlgBody');
+  const draw = () => { body.innerHTML = `
+    <h2>${isNew ? 'Add a week' : 'Edit week'}</h2>
+    <label class="field">Week label</label><input type="text" id="ewk" value="${esc(w.week)}">
+    <label class="field">Title</label><input type="text" id="ettl" value="${esc(w.title)}">
+    <label class="field">Short intro (optional)</label><textarea class="short" id="eint">${esc(w.intro)}</textarea>
+    <label class="field">Passages</label><input type="text" id="epas" value="${esc(w.passages.join('; '))}" placeholder="Deuteronomy 16; Acts 3">
+    <p class="hint">Separate with semicolons. Each becomes a Bible link.</p>
+    <label class="field">Questions</label><div id="eqs">${w.questions.map(qRow).join('')}</div>
+    <button class="btn small" id="eaddq">+ Add question</button>
+    <p class="hint">Changing questions won’t erase answers you’ve already written.</p>
+    <div class="dlg-actions">
+      ${isNew ? '' : '<button class="btn ghost" id="edel" style="margin-right:auto;color:#b3261e">Delete week</button>'}
+      <button class="btn" id="ecan">Cancel</button><button class="btn primary" id="esav">Save</button></div>`;
+    const collect = () => {
+      w.week = $('#ewk').value.trim() || w.week; w.title = $('#ettl').value.trim(); w.intro = $('#eint').value.trim();
+      w.passages = $('#epas').value.split(';').map(s=>s.trim()).filter(Boolean);
+      w.questions = [...body.querySelectorAll('.edit-q')].map(r => ({ text:r.querySelector('[data-k=text]').value.trim(), refs:r.querySelector('[data-k=refs]').value.split(';').map(s=>s.trim()).filter(Boolean) }));
+    };
+    $('#eaddq').onclick = () => { collect(); w.questions.push({text:'',refs:[]}); draw(); };
+    body.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { collect(); w.questions.splice(+b.dataset.del,1); draw(); });
+    $('#ecan').onclick = () => $('#dlg').close();
+    $('#esav').onclick = () => { collect(); w.questions = w.questions.filter(q => q.text); if (!w.title) w.title = 'Untitled study';
+      const i = study.weeks.findIndex(x => x.id === w.id); i >= 0 ? study.weeks[i] = w : study.weeks.push(w);
+      saveStudy(); prefs.current = w.id; prefs.view = 'week'; $('#dlg').close(); render(); };
+    const del = $('#edel'); if (del) del.onclick = () => confirmBox('Delete this week?', 'This removes the week and your answers for it from this device.', () => {
+      study.weeks = study.weeks.filter(x => x.id !== w.id); delete journal[w.id]; saveStudy(); saveJournal(); prefs.current = study.weeks[0]?.id; render(); });
+  };
+  draw(); $('#dlg').showModal();
+}
+
+function confirmBox(title, msg, onYes){
+  $('#dlgBody').innerHTML = `<h2>${esc(title)}</h2><p>${esc(msg)}</p><div class="dlg-actions"><button class="btn" id="cn">Cancel</button><button class="btn primary" id="cy">Yes</button></div>`;
+  $('#cn').onclick = () => $('#dlg').close(); $('#cy').onclick = () => { $('#dlg').close(); onYes(); };
+  if (!$('#dlg').open) $('#dlg').showModal();
+}
+
+/* ---------- Backup / restore (file stays with the user) ---------- */
+$('#exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify({ app:'study-journal', version:1, exported:new Date().toISOString(), study, journal }, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `study-journal-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('#importBtn').onclick = () => $('#importFile').click();
+$('#importFile').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const d = JSON.parse(await f.text()); if (d.app !== 'study-journal') throw 0;
+    confirmBox('Restore backup?', 'This replaces the weeks and answers on this device with the backup.', () => {
+      study = d.study; journal = d.journal || {}; saveStudy(); saveJournal(); prefs.current = study.weeks[0]?.id; render(); });
+  } catch { confirmBox('Not a valid backup', 'Choose a file made with “Back up my journal”.', () => {}); }
+  e.target.value = '';
+};
+
+/* ---------- Optional passcode lock (for shared devices) ---------- */
+const hash = async s => { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('sj:' + s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join(''); };
+$('#lockBtn').onclick = () => {
+  const has = !!get(K.lock);
+  $('#dlgBody').innerHTML = `<h2>${has ? 'Change passcode' : 'Set a passcode'}</h2>
+    <p class="hint">Hides your journal behind a passcode when the app opens. Useful if others use this device.</p>
+    <label class="field">New passcode (4+ characters)</label><input type="text" id="pc" inputmode="numeric" autocomplete="off">
+    <div class="err" id="pcerr"></div>
+    <div class="dlg-actions">${has ? '<button class="btn ghost" id="pcoff" style="margin-right:auto">Remove lock</button>' : ''}<button class="btn" id="pccan">Cancel</button><button class="btn primary" id="pcok">Save</button></div>`;
+  $('#dlg').showModal();
+  $('#pccan').onclick = () => $('#dlg').close();
+  $('#pcok').onclick = async () => { const v = $('#pc').value.trim(); if (v.length < 4) { $('#pcerr').textContent = 'Use at least 4 characters.'; return; } set(K.lock, await hash(v)); $('#dlg').close(); renderNav(); };
+  const off = $('#pcoff'); if (off) off.onclick = () => { if (storageOK) localStorage.removeItem(K.lock); else delete mem[K.lock]; $('#dlg').close(); renderNav(); };
+};
+function showLock(){
+  document.querySelector('.app').style.display = 'none'; document.querySelector('.topbar').style.display = 'none';
+  const wrap = document.createElement('div'); wrap.className = 'lock-screen'; wrap.id = 'lock';
+  wrap.innerHTML = `<p class="brand">Study Journal</p><p class="hint">Enter your passcode to open your journal.</p>
+    <input type="password" id="unl" inputmode="numeric" autocomplete="off" aria-label="Passcode"><div class="err" id="unlerr"></div>
+    <button class="btn primary" id="unlbtn" style="width:100%">Unlock</button>`;
+  document.body.appendChild(wrap);
+  const go = async () => { if (await hash($('#unl').value.trim()) === get(K.lock)) { wrap.remove(); document.querySelector('.app').style.display = ''; document.querySelector('.topbar').style.display = ''; render(); } else $('#unlerr').textContent = 'That passcode doesn’t match.'; };
+  $('#unlbtn').onclick = go; $('#unl').onkeydown = e => e.key === 'Enter' && go(); $('#unl').focus();
+}
+
+/* ---------- Nav events ---------- */
+document.addEventListener('click', e => {
+  const wb = e.target.closest('[data-week]'); if (wb) { prefs.current = wb.dataset.week; prefs.view = 'week'; render(); }
+  const vb = e.target.closest('[data-view]'); if (vb) { prefs.view = vb.dataset.view; render(); }
+});
+$('#addWeek').onclick = () => editWeek(null);
+const closeMenu = () => { $('#side').classList.remove('open'); $('#scrim').classList.remove('show'); };
+$('#menuBtn').onclick = () => { $('#side').classList.add('open'); $('#scrim').classList.add('show'); };
+$('#scrim').onclick = closeMenu;
+
+get(K.lock) ? showLock() : render();
+})();
+</script>
+</body>
+</html>
